@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0e7490">
+<title>תרגול ערבית מדוברת</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#334155;
+    --txt:#f1f5f9; --muted:#94a3b8;
+    --accent:#22d3ee; --accent2:#0e7490;
+    --good:#22c55e; --good-bg:#14532d;
+    --bad:#ef4444; --bad-bg:#7f1d1d;
+    --radius:18px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--txt);
+    font-family:"Segoe UI","Helvetica Neue",Arial,"Arial Hebrew",sans-serif;}
+  body{min-height:100dvh; display:flex; flex-direction:column;}
+  .wrap{max-width:560px; width:100%; margin:0 auto; padding:14px 16px 28px; flex:1; display:flex; flex-direction:column;}
+
+  header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  header h1{font-size:18px; margin:0; font-weight:700;}
+  .stats{display:flex; gap:14px; font-size:13px; color:var(--muted);}
+  .stats b{color:var(--accent); font-size:15px;}
+
+  /* settings bar */
+  .bar{background:var(--card); border-radius:var(--radius); padding:12px; margin-bottom:14px;}
+  .bar .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .bar .label{font-size:12px; color:var(--muted); width:100%; margin-bottom:2px;}
+  .chip{border:1px solid var(--card2); background:transparent; color:var(--txt);
+    padding:7px 13px; border-radius:999px; font-size:14px; cursor:pointer; transition:.15s;}
+  .chip.on{background:var(--accent2); border-color:var(--accent2); color:#fff; font-weight:600;}
+  .chip.on::before{content:"✓\00a0";}
+  .chip:active{transform:scale(.95);}
+  .bar + .bar{margin-top:-6px;}
+
+  /* quiz card */
+  .card{background:var(--card); border-radius:var(--radius); padding:26px 18px; text-align:center; margin-bottom:14px;}
+  .dir{font-size:12px; color:var(--muted); margin-bottom:14px; letter-spacing:.5px;}
+  .prompt{font-size:46px; font-weight:700; line-height:1.35; word-break:break-word;}
+  .prompt.he{font-size:38px;}
+  .sub{font-size:14px; color:var(--muted); margin-top:8px;}
+
+  .options{display:grid; gap:10px;}
+  .opt{background:var(--card); border:1.5px solid var(--card2); border-radius:14px;
+    padding:16px 14px; font-size:21px; color:var(--txt); cursor:pointer; text-align:center;
+    transition:.12s; line-height:1.3;}
+  .opt:active{transform:scale(.98);}
+  .opt.correct{background:var(--good-bg); border-color:var(--good); color:#dcfce7;}
+  .opt.wrong{background:var(--bad-bg); border-color:var(--bad); color:#fee2e2;}
+  .opt.dim{opacity:.45;}
+  .opt:disabled{cursor:default;}
+
+  .next{margin-top:14px; width:100%; padding:16px; font-size:18px; font-weight:700;
+    background:var(--accent); color:#06262e; border:none; border-radius:14px; cursor:pointer;}
+  .next:active{transform:scale(.99);}
+  .next[hidden]{display:none;}
+
+  .empty{text-align:center; color:var(--muted); padding:40px 10px;}
+  footer{text-align:center; color:var(--muted); font-size:11px; margin-top:auto; padding-top:14px;}
+  .reveal{font-size:14px; color:var(--muted); margin-top:10px; min-height:18px;}
+  .reveal b{color:var(--accent);}
+</style>
+  <!-- pwa -->
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ערבית">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>תרגול ערבית מדוברת</h1>
+    <div class="stats">
+      <span>נכון <b id="sCorrect">0</b></span>
+      <span>רצף <b id="sStreak">0</b></span>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="row"><span class="label">בחר רמות לתרגול — אפשר לסמן כמה יחד</span><span id="lessons" class="row" style="gap:8px"></span></div>
+  </div>
+  <div class="bar">
+    <div class="row"><span class="label">כיוון התרגול</span>
+      <button class="chip" data-dir="both">דו־כיווני</button>
+      <button class="chip" data-dir="ar2he">ערבית ← עברית</button>
+      <button class="chip" data-dir="he2ar">עברית ← ערבית</button>
+    </div>
+  </div>
+
+  <div id="game"></div>
+
+  <footer>הנתונים מבוססים על "קורס מתחילים: אוצר מילים" · ערבית מדוברת בכתב עברי מנוקד</footer>
+</div>
+
+<script>
+/* ===== WORD DATA =====
+   l = lesson (level), ar = Arabic word in Hebrew transliteration, he = Hebrew meaning */
+const WORDS = [
+  // ---- שיעור 1 ----
+  {l:1, ar:"תַמַאם", he:"בסדר, טוב"},
+  {l:1, ar:"אִנְשַאללַّה", he:"אם ירצה השם, הלוואי"},
+  {l:1, ar:"אִלְחַמְדִلְלַّה", he:"השבח לאל, תודה לאל"},
+  {l:1, ar:"סַלַאמַאת", he:"להתראות"},
+  {l:1, ar:"אַיְוַה", he:"כן"},
+  {l:1, ar:"אַה", he:"כן"},
+  {l:1, ar:"לַא", he:"לא"},
+  {l:1, ar:"כִּיף חַאלַכּ?", he:"מה שלומך?"},
+  {l:1, ar:"כִּיפַכּ?", he:"מה שלומך?"},
+  {l:1, ar:"אַללַّה מַעַאכּ", he:"שאללה יהיה איתך / להתראות"},
+  {l:1, ar:"אַ(ל)סַّלַאם עַלֵיכֻּם", he:"שלום"},
+  {l:1, ar:"וּעַלֵיכֻּם אַ(ל)סַّלַאם", he:"שלום גם לך"},
+  {l:1, ar:"אַללַّה יְחַ'לִّיכּ", he:"תהיה בריא (ברכה)"},
+  {l:1, ar:"שׁוּ אִסְמַכּ?", he:"איך קוראים לך?"},
+  {l:1, ar:"עַאיְשִין", he:'"חיים"'},
+  {l:1, ar:"פֻרְצַה סַעִידֵה", he:"נעים להכיר!"},
+  {l:1, ar:"וַאللַّה", he:"בחיי, באמת"},
+  {l:1, ar:"מִן", he:"מ־ (מן)"},
+  {l:1, ar:"פִי", he:"ב־"},
+  {l:1, ar:"אַחְנַא", he:"אנחנו"},
+  {l:1, ar:"אַנַא", he:"אני"},
+  {l:1, ar:"אִנְתִי", he:"את"},
+  {l:1, ar:"אִנְתֵ", he:"אתה"},
+  {l:1, ar:"אִנְתוּ", he:"אתם"},
+  {l:1, ar:"הֻוֵّ", he:"הוא"},
+  {l:1, ar:"הִיֵّ", he:"היא"},
+  {l:1, ar:"הֻمֵّ", he:"הם"},
+  {l:1, ar:"פִי", he:"יש"},
+  {l:1, ar:"פֵשׁ", he:"אין"},
+  {l:1, ar:"עִנְדִי", he:"יש לי / אצלי"},
+  {l:1, ar:"מִשׁ", he:"לא"},
+  {l:1, ar:"כֻּלّ", he:"כל"},
+  {l:1, ar:"בַּסّ", he:"אבל"},
+  {l:1, ar:"כַּמַאן", he:"גם"},
+  {l:1, ar:"וּ", he:"ו־"},
+  {l:1, ar:"בַּסّ", he:"רק"},
+  {l:1, ar:"שׁוּ?", he:"מה?"},
+  {l:1, ar:"וֵין?", he:"איפה?"},
+  {l:1, ar:"מִין?", he:"מי?"},
+  {l:1, ar:"מִן וֵין?", he:"מאיפה?"},
+  {l:1, ar:"כִּיף?", he:"איך?"},
+  {l:1, ar:"סַכַּן - סַאכֵּן", he:"גר"},
+  {l:1, ar:"פְהֵם - פַאהֵם, בִּ(י)פְהַם", he:"הבין"},
+  {l:1, ar:"עְרֵף - עַארֵף", he:"ידע"},
+  {l:1, ar:"בֵּית - בְּיוּת", he:"בית"},
+  {l:1, ar:"מַשְׁכַּלֵה - מַשַאכֵּל", he:"בעיה"},
+  {l:1, ar:"וַקְת", he:"זמן"},
+  {l:1, ar:"צַאחֵבּ - צְחַאבּ", he:"חבר"},
+  {l:1, ar:"וַלַד - וּלַאד", he:"ילד"},
+  {l:1, ar:"בִּנְת - בַּנַאת", he:"ילדה"},
+  {l:1, ar:"כִּלְמֵה", he:"מילה"},
+  {l:1, ar:"סַיַّארַה - סַיַّארַאת", he:"מכונית"},
+  {l:1, ar:"פִלְם", he:"סרט"},
+  {l:1, ar:"סֻאַאל - אַסְאִלֵה", he:"שאלה"},
+  {l:1, ar:"דַרְס", he:"שיעור"},
+  {l:1, ar:"אִסְם", he:"שם"},
+  {l:1, ar:"לֻעַ'ה - לֻעַ'את", he:"שפה"},
+  {l:1, ar:"צוּרַה - צֻוַר", he:"תמונה"},
+  {l:1, ar:"אלְקֻדְס", he:"ירושלים"},
+  {l:1, ar:"טַאלֵבּ - טֻלַّאבּ", he:"סטודנט"},
+  {l:1, ar:"כְּתַאבּ - כֻּתֻבּ", he:"ספר"},
+  {l:1, ar:"יוֹם", he:"יום"},
+  {l:1, ar:"דַפְתַר - דַפַאתֵר", he:"מחברת"},
+  {l:1, ar:"חַאל", he:"מצב"},
+  {l:1, ar:"שַׁמְס", he:"שמש"},
+  {l:1, ar:"מְנִיח", he:"היטב / טוב"},
+  {l:1, ar:"כְּתִיר", he:"מאוד / הרבה"},
+  {l:1, ar:"כְּבִּיר", he:"גדול"},
+  {l:1, ar:"גְ'דִיד - גְ'דַאד", he:"חדש"},
+  {l:1, ar:"זְעִ'יר", he:"קטן"},
+  {l:1, ar:"צַעְבּ", he:"קשה"},
+  {l:1, ar:"רְחִיץ", he:"זול"},
+  {l:1, ar:"חִלוּ", he:"יפה, מתוק"},
+  {l:1, ar:"אלְיוֹם", he:"היום"},
+  {l:1, ar:"הוֹן", he:"כאן"},
+  {l:1, ar:"הֲנַאכּ", he:"שם"},
+
+  // ---- שיעור 2 ----
+  {l:2, ar:"מִשׁ עַארֵף", he:"לא יודע"},
+  {l:2, ar:"תַעַאל!", he:"בוא!"},
+  {l:2, ar:"צַבַּאח אִ(ל)נّוּר", he:"בוקר אור"},
+  {l:2, ar:"צַבַּאח אִלְחֵ'יר", he:"בוקר טוב"},
+  {l:2, ar:"לַוְ סַמַחְת", he:"בבקשה"},
+  {l:2, ar:"מַאשִי", he:"הכל בסדר"},
+  {l:2, ar:"מַע (אל)סַّלַאמֵה", he:"להתראות"},
+  {l:2, ar:"אַללַّה יְסַלّמַכּ", he:"תהיה בריא (ברכה)"},
+  {l:2, ar:"שׁוּ רַאיַכּ?", he:"מה דעתך?"},
+  {l:2, ar:"שׁוּ אַחְ'בַּארַכּ?", he:"מה שלומך?"},
+  {l:2, ar:"יַעְטִיכּ אלְעַאפְיֵה", he:"תהיה בריא, בהצלחה (ברכה)"},
+  {l:2, ar:"שֻׁכְּרַן", he:"תודה"},
+  {l:2, ar:"כֻּלّ אִשִׁי", he:"כל דבר, הכל"},
+  {l:2, ar:"יִסְלַמוּ אִידֵיכּ", he:"תודה (ברכה)"},
+  {l:2, ar:"וּאִידֵיכּ", he:"תשובה ל'יסלמו אידיכ'"},
+  {l:2, ar:"אַללַّה יְעַאפִיכּ", he:"תשובה ל'יעטיכ אלעאפיה'"},
+  {l:2, ar:"לַאזֵם אַרוּח", he:"אני צריך ללכת"},
+  {l:2, ar:"טַיֵّבּ", he:"טוב"},
+  {l:2, ar:"סַאלְכֵה", he:"זורם"},
+  {l:2, ar:"בְּדוּן", he:"בלי"},
+  {l:2, ar:"מַע", he:"עם"},
+  {l:2, ar:"גַ'נְבּ", he:"ליד"},
+  {l:2, ar:"עַלַא", he:"על"},
+  {l:2, ar:"הַדוֹל", he:"אלה"},
+  {l:2, ar:"הַאדִי", he:"זאת"},
+  {l:2, ar:"הַאי", he:"זאת"},
+  {l:2, ar:"הַאדַא", he:"זה"},
+  {l:2, ar:"בְּדִّי", he:"אני רוצה"},
+  {l:2, ar:"יַעְנִי", he:"כלומר, ככה־ככה"},
+  {l:2, ar:"לֵישׁ?", he:"למה?"},
+  {l:2, ar:"עַלַא וֵין? / עַ־וֵין?", he:"לאן?"},
+  {l:2, ar:"אֵישׁ?", he:"מה?"},
+  {l:2, ar:"רַאח - רַאיֵח, בִּ(י)רוּח", he:"הלך"},
+  {l:2, ar:"שַׁאף - שַׁאיֵף, בִּ(י)שׁוּף", he:"ראה"},
+  {l:2, ar:"סְמֵע - סַאמֵע, בִּ(י)סְמַע", he:"שמע"},
+  {l:2, ar:"פִכְּרַה", he:"רעיון"},
+  {l:2, ar:"קַהְוֵה", he:"קפה"},
+  {l:2, ar:"שַׁאי", he:"תה"},
+  {l:2, ar:"אִשִׁי", he:"דבר, משהו"},
+  {l:2, ar:"סֻכַّר", he:"סוכר"},
+  {l:2, ar:"חַלִיבּ", he:"חלב"},
+  {l:2, ar:"חֻ'בְּז", he:"לחם"},
+  {l:2, ar:"אַבּ - אַבוּי", he:"אבא שלי"},
+  {l:2, ar:"אַכְּל", he:"אוכל"},
+  {l:2, ar:"אַח' - אִחְ'וֵה", he:"אח"},
+  {l:2, ar:"אֻחְ'ת - חַ'וַאת", he:"אחות"},
+  {l:2, ar:"אֻمّ", he:"אמא"},
+  {l:2, ar:"מַדְרַסֵה", he:"בית ספר"},
+  {l:2, ar:"אִבְּן", he:"בן"},
+  {l:2, ar:"חַ'אל", he:"דוד (אח של האם)"},
+  {l:2, ar:"עַمّ", he:"דוד (אח של האב)"},
+  {l:2, ar:"חְסַאבּ", he:"חשבון"},
+  {l:2, ar:"כַּלְבּ", he:"כלב"},
+  {l:2, ar:"סַנְדְוִישֵׁת פַלַאפֵל", he:"סנדוויץ' פלאפל"},
+  {l:2, ar:"מַטְעַם - מַטַאעֵם", he:"מסעדה"},
+  {l:2, ar:"סַלַטַה", he:"סלט"},
+  {l:2, ar:"צוֹת", he:"קול"},
+  {l:2, ar:"עֵילֵה", he:"משפחה"},
+  {l:2, ar:"מַכְּתַבּ - מַכַּאתֵבּ", he:"משרד"},
+  {l:2, ar:"שֻׁעְ'ל", he:"עבודה"},
+  {l:2, ar:"רַאי", he:"דעה"},
+  {l:2, ar:"סִינַמַא", he:"קולנוע"},
+  {l:2, ar:"אַהֵל", he:"הורים"},
+  {l:2, ar:"סַנְדְוִישֵׁה", he:"סנדוויץ'"},
+  {l:2, ar:"אִבְּן חַ'אל", he:"בן דוד (מצד האם)"},
+  {l:2, ar:"אִבְּן עַمّ", he:"בן דוד (מצד האב)"},
+  {l:2, ar:"תַעְבַּאן", he:"חולה, עייף"},
+  {l:2, ar:"ג'וֹעַאן - ג'וֹעַאנִין", he:"רעב"},
+  {l:2, ar:"תַאנִי", he:"אחר, שני"},
+  {l:2, ar:"זַאכִּי", he:"טעים"},
+  {l:2, ar:"הַלَّא", he:"עכשיו"},
+
+  // ---- שיעור 3 ----
+  {l:3, ar:"חַכִּי פַאצִ'י", he:"שטויות, דברי סרק"},
+  {l:3, ar:"יַא סַלַאם!", he:"איזה יופי! מגניב!"},
+  {l:3, ar:"שׁוּ בִּ(י)חְכּוּ?", he:"איך אומרים...?"},
+  {l:3, ar:"כִּיף מֻמְכֵּן אַקוּל?", he:"איך אומרים...? (איך אפשר לומר)"},
+  {l:3, ar:"כִּיף בִּ(י)חְכּוּ?", he:"איך אומרים...?"},
+  {l:3, ar:"וַלَא וַאחַד", he:"אף אחד"},
+  {l:3, ar:"תְשַׁרַّפְנַא", he:"נעים להכיר"},
+  {l:3, ar:"אַ(ל)שַّרַף אִלִי", he:"הכבוד הוא שלי (תשובה לתשרפנא)"},
+  {l:3, ar:"קַדֵّישׁ עֻמְרַכּ?", he:"בן כמה אתה?"},
+  {l:3, ar:"כֻּל אִלְאַחְתִרַאם", he:"כל הכבוד"},
+  {l:3, ar:"מַעְנַאהַא", he:"משמעותו, זה אומר"},
+  {l:3, ar:"מַרְחַבְּתֵין", he:"שלום גם לך (תשובה למרחבא)"},
+  {l:3, ar:"מַרְחַבַּא", he:"שלום, ברוכים הבאים"},
+  {l:3, ar:"תִסְלַם", he:"תהיה בריא, תודה"},
+  {l:3, ar:"עַ־(א)לְעֵין וּ(אל)רַ'אס", he:"בשמחה רבה"},
+  {l:3, ar:"עַלַא עֵינִי וּרַאסִי", he:"בשמחה רבה"},
+  {l:3, ar:"עַלַא עֵינִי", he:"בשמחה רבה"},
+  {l:3, ar:"עַלַא רַאסִי", he:"בשמחה רבה"},
+  {l:3, ar:"כַּאסַת מַי", he:"כוס מים"},
+  {l:3, ar:"שׁוּ הַ(אל)שׁוֹבּ?", he:"איזה חום"},
+  {l:3, ar:"שׁוּ יַעְנִי?", he:"מה זאת אומרת?"},
+  {l:3, ar:"וַלَא", he:"שום־, אף־"},
+  {l:3, ar:"אַו", he:"או"},
+  {l:3, ar:"אַכַّם?", he:"כמה?"},
+  {l:3, ar:"קַדֵّישׁ?", he:"כמה?"},
+  {l:3, ar:"תְעַלַّם - בִּ(י)תְעַלַّם", he:"למד"},
+  {l:3, ar:"אִשְׁתַעַّל - בִּ(י)שְׁתַעֵّל", he:"עבד"},
+  {l:3, ar:"חַכַّא - בִּ(י)חְכִּי", he:"דיבר, סיפר, אמר"},
+  {l:3, ar:"וַאחַד", he:"אחד"},
+  {l:3, ar:"תְנֵין", he:"שתיים"},
+  {l:3, ar:"תַלַאתֵה", he:"שלוש"},
+  {l:3, ar:"אַרְבַּעַה", he:"ארבעה"},
+  {l:3, ar:"חַ'מְסֵה", he:"חמש"},
+  {l:3, ar:"סִתֵّה", he:"שש"},
+  {l:3, ar:"סַבְּעַה", he:"שבע"},
+  {l:3, ar:"תַמַנְיֵה", he:"שמונה"},
+  {l:3, ar:"תִסְעַה", he:"תשע"},
+  {l:3, ar:"עַשַׁרַה", he:"עשר"},
+  {l:3, ar:"וַחַדֵה", he:"אחת"},
+  {l:3, ar:"עִשְׁרִין", he:"עשרים"},
+  {l:3, ar:"תַלַתִין", he:"שלושים"},
+  {l:3, ar:"אַרְבַּעִין", he:"ארבעים"},
+  {l:3, ar:"חַ'מְסִין", he:"חמישים"},
+  {l:3, ar:"סִתִّין", he:"שישים"},
+  {l:3, ar:"סַבְּעִין", he:"שבעים"},
+  {l:3, ar:"תַמַנִין", he:"שמונים"},
+  {l:3, ar:"תִסְעִין", he:"תשעים"},
+  {l:3, ar:"מִיֵّה", he:"מאה"},
+  {l:3, ar:"מוּסִיקַא", he:"מוזיקה"},
+  {l:3, ar:"מַקְלוּבֵّה", he:"מקלובה"},
+  {l:3, ar:"עִבְּרַאנִי", he:"עברית"},
+  {l:3, ar:"חַכִּי", he:"דיבור"},
+  {l:3, ar:"ג'אמְעַה", he:"אוניברסיטה"},
+  {l:3, ar:"עֻמְר", he:"חיים, גיל"},
+  {l:3, ar:"בַּנְטַלוֹן", he:"מכנסיים"},
+  {l:3, ar:"תַארִיח'", he:"תאריך"},
+  {l:3, ar:"מְדִיר", he:"מנהל"},
+  {l:3, ar:"מֻפְתַאח", he:"מפתח"},
+  {l:3, ar:"קַלַם", he:"עט"},
+  {l:3, ar:"שַׁארֵע - שַׁוַארֵע", he:"רחוב"},
+  {l:3, ar:"אֻסְבּוּע", he:"שבוע"},
+  {l:3, ar:"חַקّ", he:"מחיר"},
+  {l:3, ar:"סַאעַה", he:"שעה, שעון"},
+  {l:3, ar:"אִקְתִצַאד", he:"כלכלה"},
+  {l:3, ar:"צַףّ", he:"כיתה, שורה"},
+  {l:3, ar:"בַּצַל", he:"בצל"},
+  {l:3, ar:"שַׁאבּ - שַׁבַּאבּ", he:"בחור, נער"},
+  {l:3, ar:"מְעַלֵّם", he:"מורה"},
+  {l:3, ar:"עַרַבִּי", he:"ערבית"},
+  {l:3, ar:"אִנְגְלִיזִי", he:"אנגלית"},
+  {l:3, ar:"הִנְדִי", he:"הינדי"},
+  {l:3, ar:"צִינִי", he:"סינית"},
+  {l:3, ar:"מַי / מַיֵّה", he:"מים"},
+  {l:3, ar:"אַמֵירְכַּא", he:"אמריקה"},
+  {l:3, ar:"רַאס", he:"ראש"},
+  {l:3, ar:"שׁוַי", he:"קצת"},
+  {l:3, ar:"וַלَא אִשִׁי", he:"שום דבר, לא כלום"},
+  {l:3, ar:"בִּ(י)גַנֵّן", he:"משגע, מגניב"},
+  {l:3, ar:"מַשְׁע'וּל", he:"עסוק"},
+  {l:3, ar:"מִתְאַכֵّד", he:"בטוח"},
+
+  // ---- שיעור 4 ----
+  {l:4, ar:"דַמّוֹ חַ'פִיף", he:"אדם נחמד"},
+  {l:4, ar:"שׁוּ בִּיצִיר?", he:"מה קורה?"},
+  {l:4, ar:"כִּיף בִּיקוּלוּ?", he:"איך אומרים...?"},
+  {l:4, ar:"בִּיצִיר", he:"יש מצב"},
+  {l:4, ar:"מַא בִּיצִיר", he:"לא יקרה"},
+  {l:4, ar:"בַּעְד", he:"אחרי"},
+  {l:4, ar:"קַבְּל", he:"לפני"},
+  {l:4, ar:"לַ", he:"ל־"},
+  {l:4, ar:"אַנّוֹ", he:"ש־"},
+  {l:4, ar:"לַمّא", he:"כאשר, כש־"},
+  {l:4, ar:"אִזַא", he:"אם"},
+  {l:4, ar:"אֵימְתַא?", he:"מתי?"},
+  {l:4, ar:"פַאק - יְפִיק", he:"התעורר"},
+  {l:4, ar:"בַּאע - יְבִּיע", he:"מכר"},
+  {l:4, ar:"ג'אבּ - יְגִ'יבּ", he:"הביא"},
+  {l:4, ar:"צַאר - יְצִיר", he:"נהיה"},
+  {l:4, ar:"זַאר - יְזוּר", he:"ביקר"},
+  {l:4, ar:"פַאת - יְפוּת", he:"נכנס"},
+  {l:4, ar:"קַאל - יְקוּל", he:"אמר"},
+  {l:4, ar:"קַאם - יְקוּם", he:"קם"},
+  {l:4, ar:"נַאס", he:"אנשים"},
+  {l:4, ar:"צֻבְּח", he:"בוקר"},
+  {l:4, ar:"דֻכַّאן", he:"חנות"},
+  {l:4, ar:"לֵילֵה", he:"לילה"},
+  {l:4, ar:"מַחְ'בַּז", he:"מאפייה"},
+  {l:4, ar:"הַדְיֵّה - הַדַאיַא", he:"מתנה"},
+  {l:4, ar:"אלְחַ'לִיל", he:"חברון"},
+  {l:4, ar:"מַטְבַּח'", he:"מטבח"},
+  {l:4, ar:"בַּאבּ", he:"דלת"},
+  {l:4, ar:"מִתְאַחֵّר", he:"מאוחר"},
+  {l:4, ar:"מֻהֵם", he:"חשוב"},
+  {l:4, ar:"חַ'פִיף", he:"קל"},
+  {l:4, ar:"מַגְ'נוּן - מַגַ'אנִין", he:"משוגע"},
+  {l:4, ar:"דַאיְמַן", he:"תמיד"},
+  {l:4, ar:"בֻּכְּרַא", he:"מחר"},
+  {l:4, ar:"עַאדַתַן", he:"בדרך כלל"},
+
+  // ---- שיעור 5 ----
+  {l:5, ar:"צַחّ", he:"נכון"},
+  {l:5, ar:"מַא אַחְלַאה!", he:"איזה יופי!"},
+  {l:5, ar:"אִ(ל)דֻّנְיַא שוֹבּ", he:"חם היום"},
+  {l:5, ar:"מִנְשַׁאן", he:"כדי, בשביל"},
+  {l:5, ar:"זַيّ", he:"כמו"},
+  {l:5, ar:"עַן", he:"אודות"},
+  {l:5, ar:"לַאזֵם", he:"צריך"},
+  {l:5, ar:"מֻמְכֵּן", he:"אפשר"},
+  {l:5, ar:"לְעֵבּ - יִלְעַבּ", he:"שיחק"},
+  {l:5, ar:"פַתַח - יִפְתַח", he:"פתח"},
+  {l:5, ar:"רְגֵ'ע - יִרְגַ'ע", he:"חזר"},
+  {l:5, ar:"שְׁרֵבּ - יִשְׁרַבּ", he:"שתה"},
+  {l:5, ar:"קַרַא - יִקְרַא", he:"קרא"},
+  {l:5, ar:"דַפַע - יִדְפַע", he:"שילם / דחף"},
+  {l:5, ar:"טְלֵע - יִטְלַע", he:"יצא / עלה"},
+  {l:5, ar:"סַאַל - יִסְאַל", he:"שאל"},
+  {l:5, ar:"קְדֵר - יִקְדַר", he:"יכול / יכל"},
+  {l:5, ar:"אִלَّא", he:"פחות"},
+  {l:5, ar:"רֻבְּע", he:"רבע"},
+  {l:5, ar:"תֻלְת", he:"שליש"},
+  {l:5, ar:"נֻץّ", he:"חצי"},
+  {l:5, ar:"שַׁרְק אלְקֻדְס", he:"מזרח ירושלים"},
+  {l:5, ar:"שֻׁבַّאכּ - שַׁבַּאבִּיכּ", he:"חלון"},
+  {l:5, ar:"עְ'דַא", he:"ארוחת צהריים"},
+  {l:5, ar:"אלְבַּלַדֵה (א)לְקַדִימֵה", he:"העיר העתיקה"},
+  {l:5, ar:"אַחְ'בַּאר", he:"חדשות"},
+  {l:5, ar:"יוֹם אִ(ל)סַّבְּת", he:"יום שבת"},
+  {l:5, ar:"בַּחַר", he:"ים"},
+  {l:5, ar:"מַצַארִי", he:"כסף"},
+  {l:5, ar:"רַאדְיוֹ", he:"רדיו"},
+  {l:5, ar:"חַפְלֵה", he:"מסיבה"},
+  {l:5, ar:"לֻעְבֵּה", he:"משחק"},
+  {l:5, ar:"צֻ'הֹר", he:"צהריים"},
+  {l:5, ar:"בַּעְד אִ(ל)צֻّ'הֹר", he:"אחר הצהריים"},
+  {l:5, ar:"סַנֵה - סְנִין", he:"שנה"},
+  {l:5, ar:"אֻסְתַאז", he:"מורה"},
+  {l:5, ar:"מַשְׁרוּבּ - מַשְׁרוּבַּאת", he:"משקה"},
+  {l:5, ar:"עֻ'רְפֵה - עֻ'רַף", he:"חדר"},
+  {l:5, ar:"יוֹם אלְאַחַד", he:"יום ראשון"},
+  {l:5, ar:"יוֹם אִ(ל)תְّנֵין", he:"יום שני"},
+  {l:5, ar:"יוֹם אִ(ל)תַّלַאתַה", he:"יום שלישי"},
+  {l:5, ar:"יוֹם אלְאַרְבַּעַה", he:"יום רביעי"},
+  {l:5, ar:"יוֹם אלְחַ'מִיס", he:"יום חמישי"},
+  {l:5, ar:"יוֹם אלְגֻ'מְעַה", he:"יום שישי"},
+  {l:5, ar:"פוּתְבּוֹל", he:"כדורגל"},
+  {l:5, ar:"בִּ(א)לְמַרّה", he:"בכלל, בכלל לא"},
+  {l:5, ar:"מַבְּסוּט", he:"נהנה, מרוצה"},
+  {l:5, ar:"פַאתֵח - מַפְתוּח", he:"פתוח"},
+  {l:5, ar:"טַוִיל", he:"ארוך"},
+  {l:5, ar:"מְסַכַّר", he:"סגור"},
+  {l:5, ar:"קַצִיר", he:"קצר"},
+  {l:5, ar:"בַּארֵד", he:"קר"},
+  {l:5, ar:"שַׁאטֵר", he:"חכם"},
+  {l:5, ar:"בַּעְדֵין", he:"אחר כך"},
+
+  // ---- שיעור 6 ----
+  {l:6, ar:"בַּ(א)חִבַّכּ", he:"אני אוהב/ת אותך"},
+  {l:6, ar:"הַאדַא הֻוֵّ", he:"זהו זה, זה הכל"},
+  {l:6, ar:"אַללַّה יְטַוֵّל עֻמְרְהַא", he:"שאלוהים יאריך את חייה"},
+  {l:6, ar:"אַתְעְבַّכּ", he:"אפשר לבקש ממך? (להטריח אותך)"},
+  {l:6, ar:"לַחַאלוֹ", he:"לבדו"},
+  {l:6, ar:"טַבְעַן", he:"כמובן"},
+  {l:6, ar:"מִתְאַסֵّף", he:"מצטער"},
+  {l:6, ar:"שׁוּ בַּדّנַא נְעְמַל?", he:"מה לעשות?!"},
+  {l:6, ar:"מֻמְכֵّן תַעְמַל לִי מַעְרוּף?", he:"אתה יכול לעשות לי טובה?"},
+  {l:6, ar:"אַכְּתַר", he:"יותר מ־, הכי"},
+  {l:6, ar:"גַ'אי עַ־בַּאלִי", he:"בא לי"},
+  {l:6, ar:"אַחְסַן", he:"יותר טוב, הכי טוב"},
+  {l:6, ar:"טַבּ", he:"טוב"},
+  {l:6, ar:"טוּל אלְיוֹם", he:"כל היום"},
+  {l:6, ar:"לַחַד", he:"עד"},
+  {l:6, ar:"חַבّ", he:"אהב"},
+  {l:6, ar:"דַחַ'ל - יָדְחֻ'ל", he:"נכנס"},
+  {l:6, ar:"טַבַּח' - יֻטְבֻּח'", he:"בישל"},
+  {l:6, ar:"טַלַבּ - יֻטְלֻבּ", he:"ביקש"},
+  {l:6, ar:"כַּתַבּ - יֻכְּתֻבּ", he:"כתב"},
+  {l:6, ar:"קַעַד - יֻקְעֻד", he:"ישב"},
+  {l:6, ar:"עַמַל - יֻעְמֻל", he:"עשה"},
+  {l:6, ar:"אַחְדַעַשׁ", he:"אחד עשרה"},
+  {l:6, ar:"טְנַעַשׁ", he:"שתים עשרה"},
+  {l:6, ar:"תַלַטַّעַשׁ", he:"שלוש עשרה"},
+  {l:6, ar:"אַרְבַּעְטַעַשׁ", he:"ארבע עשרה"},
+  {l:6, ar:"חַ'מַסְטַעַשׁ", he:"חמש עשרה"},
+  {l:6, ar:"סִתַّעַשׁ", he:"שש עשרה"},
+  {l:6, ar:"סַבְּעַטַעַשׁ", he:"שבע עשרה"},
+  {l:6, ar:"תַמַנְטַעַשׁ", he:"שמונה עשרה"},
+  {l:6, ar:"תִסַעְטַעַשׁ", he:"תשע עשרה"},
+  {l:6, ar:"קַאנוּן", he:"משפטים, חוק"},
+  {l:6, ar:"שֻׁעְ'ל אִיד", he:"עבודת יד"},
+  {l:6, ar:"אִיד", he:"יד"},
+  {l:6, ar:"גַ'וַאבּ - אַגְ'וִבֵّה", he:"תשובה"},
+  {l:6, ar:"כֻּמְבְּיוּתַר", he:"מחשב"},
+  {l:6, ar:"סִיד", he:"אדון, סבא"},
+  {l:6, ar:"זַלַמֵה", he:"איש"},
+  {l:6, ar:"מֻסְתַשְׁפַא", he:"בית חולים"},
+  {l:6, ar:"זוֹג'", he:"בעל"},
+  {l:6, ar:"סִתّ", he:"גברת, סבתא"},
+  {l:6, ar:"צֵיף", he:"קיץ"},
+  {l:6, ar:"שְׁמַאל", he:"צפון"},
+  {l:6, ar:"לוֹח", he:"לוח"},
+  {l:6, ar:"גֻ'מְלֵה - גֻ'מַל", he:"משפט"},
+  {l:6, ar:"כַּאסֵה", he:"כוס"},
+  {l:6, ar:"עִיד", he:"חג"},
+  {l:6, ar:"טַבְּחַ'ה", he:"תבשיל"},
+  {l:6, ar:"סַהְל", he:"קל"},
+  {l:6, ar:"חַ'רַאפִי", he:"אגדי"},
+  {l:6, ar:"מַרّאת", he:"לפעמים"},
+  {l:6, ar:"בַּרّא", he:"בחוץ"},
+  {l:6, ar:"גֻ'וّא", he:"בפנים"},
+
+  // ---- שיעור 7 ----
+  {l:7, ar:"שׁוּפוּנִי", he:'"תראו אותי" (שחצנות)'},
+  {l:7, ar:"אַגַ'אכּ", he:"קיבלת, הולך"},
+  {l:7, ar:"וּחְיַאת רַבִּّי", he:"בחיי"},
+  {l:7, ar:"עַן גַ'דّ", he:"ברצינות"},
+  {l:7, ar:"כֻּלّוֹ תַמַאם?", he:"הכל בסדר?"},
+  {l:7, ar:"אַאסֵף", he:"מצטער"},
+  {l:7, ar:"בַּסִיטַה", he:"שטויות, בקטנה"},
+  {l:7, ar:"חַבִּיבִּי", he:"אהובי"},
+  {l:7, ar:"חַאצֵّר", he:"אני מוכן, אין בעיה"},
+  {l:7, ar:"וַלَא בַּטِّיח'", he:"ולא כלום, ולא שום דבר"},
+  {l:7, ar:"נֻץّ אִל...", he:"מרכז ה..."},
+  {l:7, ar:"אִלִי", he:"אשר"},
+  {l:7, ar:"אַנוּ?", he:"איזה? (זכר)"},
+  {l:7, ar:"אַנִי?", he:"איזה? (נקבה)"},
+  {l:7, ar:"אַيّ?", he:"איזה?"},
+  {l:7, ar:"מְשִׁי - יְמְשִׁי", he:"הלך"},
+  {l:7, ar:"כַּאן - יְכוּן", he:"היה"},
+  {l:7, ar:"אַוַאעִי (אל)שֻׁעְ'ל", he:"בגדי עבודה"},
+  {l:7, ar:"אַוַאעִי אלְעִיד", he:"בגדי חג"},
+  {l:7, ar:"אַוַאעִי", he:"בגדים"},
+  {l:7, ar:"קַנִّינֵה", he:"בקבוק"},
+  {l:7, ar:"קַמִיץ - קֻמְצַאן", he:"חולצה"},
+  {l:7, ar:"בְּלוּזֵה - בַּלַאיֵז", he:"חולצה"},
+  {l:7, ar:"מַחַלّ", he:"חנות"},
+  {l:7, ar:"אַפְרִיקְיַא", he:"אפריקה"},
+  {l:7, ar:"טַאקְיֵّה", he:"כובע, כיפה"},
+  {l:7, ar:"בַּלַד", he:"כפר, עיר, יישוב"},
+  {l:7, ar:"סוּק", he:"שוק"},
+  {l:7, ar:"דַכְּתוֹר", he:"רופא"},
+  {l:7, ar:"תַלֵפוֹן", he:"טלפון"},
+  {l:7, ar:"חַ'זַאנֵה", he:"ארון"},
+  {l:7, ar:"טַרִיק", he:"דרך"},
+  {l:7, ar:"חַיַאה", he:"חיים"},
+  {l:7, ar:"קַלְבּ", he:"לב"},
+  {l:7, ar:"בַּסִיט", he:"פשוט"},
+  {l:7, ar:"עַטְשַׁאן", he:"צמא"},
+  {l:7, ar:"מַוְג'וּד", he:"נמצא"},
+  {l:7, ar:"מַרִיץ'", he:"חולה"},
+  {l:7, ar:"מַלַאן", he:"מלא"},
+  {l:7, ar:"נַצִיחַה", he:"עצה"},
+  {l:7, ar:"חְ'תְיַאר", he:"זקן"},
+
+  // ---- שיעור 8 ----
+  {l:8, ar:"אַנַא אַסְעַד", he:"נעים מאד (תשובה ל'פרצה סעידה')"},
+  {l:8, ar:"עַפְוַן", he:"בבקשה (תשובה ל'שֻׁכְּרַן')"},
+  {l:8, ar:"אַהְלֵין", he:"אהלן, שלום"},
+  {l:8, ar:"בִּ(אל)נַّגַ'אח", he:"בהצלחה"},
+  {l:8, ar:"אַהְלַן", he:"שלום"},
+  {l:8, ar:"מַסַא (א)לְחֵّיר", he:"ערב טוב"},
+  {l:8, ar:"מַסַא (אל)נّוּר", he:"ערב טוב (תשובה)"},
+  {l:8, ar:"הַלَא", he:"שלום"},
+  {l:8, ar:"שׁוּ (א)לְוַצְ'ע?", he:"מה המצב?"},
+  {l:8, ar:"הַאד", he:"זה"},
+  {l:8, ar:"עַשַׁאן", he:"כי / כדי ש..."},
+  {l:8, ar:"וֵינְתַא?", he:"מתי?"},
+  {l:8, ar:"אַחַ'ד - חֹ'ד, חֹ'דִי, חֹ'דוּ", he:"לקח"},
+  {l:8, ar:"מַסַא", he:"ערב"},
+  {l:8, ar:"דַקִיקַה - דַקַאיֵק", he:"דקה"},
+];
+
+/* ===== STATE ===== */
+const state = {
+  lessons: new Set(),       // selected lesson numbers
+  dir: "both",
+  pool: [],
+  current: null,
+  answered: false,
+  correct: 0,
+  streak: 0,
+};
+
+/* ===== HELPERS ===== */
+const $ = s => document.querySelector(s);
+const allLessons = [...new Set(WORDS.map(w=>w.l))].sort((a,b)=>a-b);
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ===== SETUP UI ===== */
+function buildLessonChips(){
+  const box = $("#lessons"); box.innerHTML="";
+  const mk=(num,label)=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.textContent=label; b.dataset.lesson=num;
+    b.onclick=()=>toggleLesson(num,b);
+    return b;
+  };
+  const all=mk("all","הכול");
+  all.onclick=()=>{ const on=state.lessons.size!==allLessons.length;
+    state.lessons = on ? new Set(allLessons) : new Set();
+    syncLessonChips(); rebuild(); };
+  box.appendChild(all);
+  allLessons.forEach(n=> box.appendChild(mk(n,"שיעור "+n)));
+  syncLessonChips();
+}
+function toggleLesson(num,btn){
+  num=+num;
+  if(state.lessons.has(num)) state.lessons.delete(num); else state.lessons.add(num);
+  syncLessonChips(); rebuild();
+}
+function syncLessonChips(){
+  document.querySelectorAll('#lessons .chip').forEach(c=>{
+    if(c.dataset.lesson==="all"){ c.classList.toggle("on", state.lessons.size===allLessons.length); }
+    else c.classList.toggle("on", state.lessons.has(+c.dataset.lesson));
+  });
+}
+document.querySelectorAll('[data-dir]').forEach(b=>{
+  b.onclick=()=>{ state.dir=b.dataset.dir;
+    document.querySelectorAll('[data-dir]').forEach(x=>x.classList.toggle("on",x===b));
+    nextQuestion(); };
+});
+
+/* ===== GAME ===== */
+function rebuild(){
+  state.pool = WORDS.filter(w=> state.lessons.has(w.l));
+  nextQuestion();
+}
+function nextQuestion(){
+  const game=$("#game");
+  if(state.pool.length<4){
+    game.innerHTML=`<div class="card"><div class="empty">בחר שיעור אחד או יותר כדי להתחיל 👆</div></div>`;
+    return;
+  }
+  const dir = state.dir==="both" ? (Math.random()<0.5?"ar2he":"he2ar") : state.dir;
+  const word = pick(state.pool);
+  const answerKey = dir==="ar2he" ? "he" : "ar";
+  const promptKey = dir==="ar2he" ? "ar" : "he";
+
+  // distractors: unique answer values, not equal to correct
+  const correctVal = word[answerKey];
+  const others = shuffle(state.pool.filter(w=> w[answerKey]!==correctVal));
+  const seen=new Set([correctVal]); const distract=[];
+  for(const w of others){ if(!seen.has(w[answerKey])){ seen.add(w[answerKey]); distract.push(w[answerKey]); } if(distract.length===3) break; }
+  const options = shuffle([correctVal, ...distract]);
+
+  state.current={word,dir,answerKey,correctVal};
+  state.answered=false;
+
+  const dirLabel = dir==="ar2he" ? "מה הפירוש בעברית?" : "איך אומרים בערבית?";
+  const promptCls = promptKey==="he" ? "prompt he" : "prompt";
+
+  game.innerHTML=`
+    <div class="card">
+      <div class="dir">${dirLabel}</div>
+      <div class="${promptCls}">${word[promptKey]}</div>
+    </div>
+    <div class="options" id="opts"></div>
+    <div class="reveal" id="reveal"></div>
+    <button class="next" id="next" hidden>הבא ←</button>
+  `;
+  const optBox=$("#opts");
+  options.forEach(val=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.textContent=val;
+    b.onclick=()=>answer(b,val);
+    optBox.appendChild(b);
+  });
+  $("#next").onclick=nextQuestion;
+}
+function answer(btn,val){
+  if(state.answered) return;
+  state.answered=true;
+  const {correctVal}=state.current;
+  const buttons=[...document.querySelectorAll('.opt')];
+  buttons.forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===correctVal) b.classList.add("correct");
+    else if(b===btn) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  const ok = val===correctVal;
+  if(ok){ state.correct++; state.streak++; }
+  else { state.streak=0;
+    $("#reveal").innerHTML = `התשובה הנכונה: <b>${correctVal}</b>`;
+  }
+  $("#sCorrect").textContent=state.correct;
+  $("#sStreak").textContent=state.streak;
+  $("#next").hidden=false;
+}
+
+/* ===== INIT ===== */
+buildLessonChips();
+state.lessons=new Set([allLessons[0]]); syncLessonChips();
+document.querySelector('[data-dir="both"]').classList.add("on");
+rebuild();
+</script>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+</body>
+</html>
