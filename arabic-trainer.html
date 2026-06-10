@@ -62,6 +62,20 @@
   footer{text-align:center; color:var(--muted); font-size:11px; margin-top:auto; padding-top:14px;}
   .reveal{font-size:14px; color:var(--muted); margin-top:10px; min-height:18px;}
   .reveal b{color:var(--accent);}
+  /* stats strip */
+  .statsbar{display:flex; gap:8px; margin-bottom:14px;}
+  .stat{flex:1; background:var(--card); border-radius:14px; padding:8px 4px 7px; text-align:center;}
+  .stat b{display:block; color:var(--accent); font-size:21px; line-height:1.1; font-weight:700;}
+  .stat span{font-size:11px; color:var(--muted);}
+  /* milestone banner */
+  .banner{position:fixed; top:14px; left:50%; transform:translate(-50%,-160%);
+    background:linear-gradient(135deg,#0e7490,#22d3ee); color:#062a32;
+    padding:12px 24px; border-radius:16px; box-shadow:0 10px 34px rgba(0,0,0,.45);
+    text-align:center; z-index:60; opacity:0; pointer-events:none; max-width:90vw;
+    transition:transform .35s cubic-bezier(.2,.9,.3,1.5), opacity .3s;}
+  .banner.show{transform:translate(-50%,0); opacity:1;}
+  .banner-ar{font-size:25px; font-weight:800; line-height:1.2;}
+  .banner-he{font-size:13px; font-weight:600; opacity:.85; margin-top:3px;}
 </style>
   <!-- app-icon:start -->
   <link rel="icon" type="image/png" href="data:image/png;base64,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">
@@ -77,11 +91,14 @@
 <div class="wrap">
   <header>
     <h1>תרגול ערבית מדוברת</h1>
-    <div class="stats">
-      <span>נכון <b id="sCorrect">0</b></span>
-      <span>רצף <b id="sStreak">0</b></span>
-    </div>
   </header>
+  <div class="statsbar">
+    <div class="stat"><b id="sStreak">0</b><span>רצף</span></div>
+    <div class="stat"><b id="sBest">0</b><span>שיא</span></div>
+    <div class="stat"><b id="sCorrect">0</b><span>נכון</span></div>
+    <div class="stat"><b id="sPct">—</b><span>הצלחה</span></div>
+  </div>
+  <div id="banner" class="banner"></div>
 
   <div class="bar">
     <div class="row"><span class="label">בחר רמות לתרגול — אפשר לסמן כמה יחד</span><span id="lessons" class="row" style="gap:8px"></span></div>
@@ -102,449 +119,7 @@
 <script>
 /* ===== WORD DATA =====
    l = lesson (level), ar = Arabic word in Hebrew transliteration, he = Hebrew meaning */
-const WORDS = [
-  // ---- שיעור 1 ----
-  {l:1, ar:"תַמַאם", he:"בסדר, טוב"},
-  {l:1, ar:"אִנְשַאללַּה", he:"אם ירצה השם, הלוואי"},
-  {l:1, ar:"אִלְחַמְדִלְלַּה", he:"השבח לאל, תודה לאל"},
-  {l:1, ar:"סַלַאמַאת", he:"להתראות"},
-  {l:1, ar:"אַיְוַה", he:"כן"},
-  {l:1, ar:"אַה", he:"כן"},
-  {l:1, ar:"לַא", he:"לא"},
-  {l:1, ar:"כִּיף חַאלַכּ?", he:"מה שלומך?"},
-  {l:1, ar:"כִּיפַכּ?", he:"מה שלומך?"},
-  {l:1, ar:"אַללַּה מַעַאכּ", he:"שאללה יהיה איתך / להתראות"},
-  {l:1, ar:"אַ(ל)סַּלַאם עַלֵיכֻּם", he:"שלום"},
-  {l:1, ar:"וּעַלֵיכֻּם אַ(ל)סַּלַאם", he:"שלום גם לך"},
-  {l:1, ar:"אַללַּה יְחַ'לִּיכּ", he:"תהיה בריא (ברכה)"},
-  {l:1, ar:"שׁוּ אִסְמַכּ?", he:"איך קוראים לך?"},
-  {l:1, ar:"עַאיְשִין", he:'"חיים"'},
-  {l:1, ar:"פֻרְצַה סַעִידֵה", he:"נעים להכיר!"},
-  {l:1, ar:"וַאללַּה", he:"בחיי, באמת"},
-  {l:1, ar:"מִן", he:"מ־ (מן)"},
-  {l:1, ar:"פִי", he:"ב־"},
-  {l:1, ar:"אַחְנַא", he:"אנחנו"},
-  {l:1, ar:"אַנַא", he:"אני"},
-  {l:1, ar:"אִנְתִי", he:"את"},
-  {l:1, ar:"אִנְתֵ", he:"אתה"},
-  {l:1, ar:"אִנְתוּ", he:"אתם"},
-  {l:1, ar:"הֻוֵּ", he:"הוא"},
-  {l:1, ar:"הִיֵּ", he:"היא"},
-  {l:1, ar:"הֻמֵּ", he:"הם"},
-  {l:1, ar:"פִי", he:"יש"},
-  {l:1, ar:"פֵשׁ", he:"אין"},
-  {l:1, ar:"עִנְדִי", he:"יש לי / אצלי"},
-  {l:1, ar:"מִשׁ", he:"לא"},
-  {l:1, ar:"כֻּלּ", he:"כל"},
-  {l:1, ar:"בַּסּ", he:"אבל"},
-  {l:1, ar:"כַּמַאן", he:"גם"},
-  {l:1, ar:"וּ", he:"ו־"},
-  {l:1, ar:"בַּסּ", he:"רק"},
-  {l:1, ar:"שׁוּ?", he:"מה?"},
-  {l:1, ar:"וֵין?", he:"איפה?"},
-  {l:1, ar:"מִין?", he:"מי?"},
-  {l:1, ar:"מִן וֵין?", he:"מאיפה?"},
-  {l:1, ar:"כִּיף?", he:"איך?"},
-  {l:1, ar:"סַכַּן - סַאכֵּן", he:"גר"},
-  {l:1, ar:"פְהֵם - פַאהֵם, בִּ(י)פְהַם", he:"הבין"},
-  {l:1, ar:"עְרֵף - עַארֵף", he:"ידע"},
-  {l:1, ar:"בֵּית - בְּיוּת", he:"בית"},
-  {l:1, ar:"מַשְׁכַּלֵה - מַשַאכֵּל", he:"בעיה"},
-  {l:1, ar:"וַקְת", he:"זמן"},
-  {l:1, ar:"צַאחֵבּ - צְחַאבּ", he:"חבר"},
-  {l:1, ar:"וַלַד - וּלַאד", he:"ילד"},
-  {l:1, ar:"בִּנְת - בַּנַאת", he:"ילדה"},
-  {l:1, ar:"כִּלְמֵה", he:"מילה"},
-  {l:1, ar:"סַיַּארַה - סַיַּארַאת", he:"מכונית"},
-  {l:1, ar:"פִלְם", he:"סרט"},
-  {l:1, ar:"סֻאַאל - אַסְאִלֵה", he:"שאלה"},
-  {l:1, ar:"דַרְס", he:"שיעור"},
-  {l:1, ar:"אִסְם", he:"שם"},
-  {l:1, ar:"לֻעַ'ה - לֻעַ'את", he:"שפה"},
-  {l:1, ar:"צוּרַה - צֻוַר", he:"תמונה"},
-  {l:1, ar:"אלְקֻדְס", he:"ירושלים"},
-  {l:1, ar:"טַאלֵבּ - טֻלַּאבּ", he:"סטודנט"},
-  {l:1, ar:"כְּתַאבּ - כֻּתֻבּ", he:"ספר"},
-  {l:1, ar:"יוֹם", he:"יום"},
-  {l:1, ar:"דַפְתַר - דַפַאתֵר", he:"מחברת"},
-  {l:1, ar:"חַאל", he:"מצב"},
-  {l:1, ar:"שַׁמְס", he:"שמש"},
-  {l:1, ar:"מְנִיח", he:"היטב / טוב"},
-  {l:1, ar:"כְּתִיר", he:"מאוד / הרבה"},
-  {l:1, ar:"כְּבִּיר", he:"גדול"},
-  {l:1, ar:"גְ'דִיד - גְ'דַאד", he:"חדש"},
-  {l:1, ar:"זְעִ'יר", he:"קטן"},
-  {l:1, ar:"צַעְבּ", he:"קשה"},
-  {l:1, ar:"רְחִיץ", he:"זול"},
-  {l:1, ar:"חִלוּ", he:"יפה, מתוק"},
-  {l:1, ar:"אלְיוֹם", he:"היום"},
-  {l:1, ar:"הוֹן", he:"כאן"},
-  {l:1, ar:"הֲנַאכּ", he:"שם"},
-
-  // ---- שיעור 2 ----
-  {l:2, ar:"מִשׁ עַארֵף", he:"לא יודע"},
-  {l:2, ar:"תַעַאל!", he:"בוא!"},
-  {l:2, ar:"צַבַּאח אִ(ל)נּוּר", he:"בוקר אור"},
-  {l:2, ar:"צַבַּאח אִלְחֵ'יר", he:"בוקר טוב"},
-  {l:2, ar:"לַוְ סַמַחְת", he:"בבקשה"},
-  {l:2, ar:"מַאשִי", he:"הכל בסדר"},
-  {l:2, ar:"מַע (אל)סַּלַאמֵה", he:"להתראות"},
-  {l:2, ar:"אַללַּה יְסַלּמַכּ", he:"תהיה בריא (ברכה)"},
-  {l:2, ar:"שׁוּ רַאיַכּ?", he:"מה דעתך?"},
-  {l:2, ar:"שׁוּ אַחְ'בַּארַכּ?", he:"מה שלומך?"},
-  {l:2, ar:"יַעְטִיכּ אלְעַאפְיֵה", he:"תהיה בריא, בהצלחה (ברכה)"},
-  {l:2, ar:"שֻׁכְּרַן", he:"תודה"},
-  {l:2, ar:"כֻּלּ אִשִׁי", he:"כל דבר, הכל"},
-  {l:2, ar:"יִסְלַמוּ אִידֵיכּ", he:"תודה (ברכה)"},
-  {l:2, ar:"וּאִידֵיכּ", he:"תשובה ל'יסלמו אידיכ'"},
-  {l:2, ar:"אַללַּה יְעַאפִיכּ", he:"תשובה ל'יעטיכ אלעאפיה'"},
-  {l:2, ar:"לַאזֵם אַרוּח", he:"אני צריך ללכת"},
-  {l:2, ar:"טַיֵּבּ", he:"טוב"},
-  {l:2, ar:"סַאלְכֵה", he:"זורם"},
-  {l:2, ar:"בְּדוּן", he:"בלי"},
-  {l:2, ar:"מַע", he:"עם"},
-  {l:2, ar:"גַ'נְבּ", he:"ליד"},
-  {l:2, ar:"עַלַא", he:"על"},
-  {l:2, ar:"הַדוֹל", he:"אלה"},
-  {l:2, ar:"הַאדִי", he:"זאת"},
-  {l:2, ar:"הַאי", he:"זאת"},
-  {l:2, ar:"הַאדַא", he:"זה"},
-  {l:2, ar:"בְּדִּי", he:"אני רוצה"},
-  {l:2, ar:"יַעְנִי", he:"כלומר, ככה־ככה"},
-  {l:2, ar:"לֵישׁ?", he:"למה?"},
-  {l:2, ar:"עַלַא וֵין? / עַ־וֵין?", he:"לאן?"},
-  {l:2, ar:"אֵישׁ?", he:"מה?"},
-  {l:2, ar:"רַאח - רַאיֵח, בִּ(י)רוּח", he:"הלך"},
-  {l:2, ar:"שַׁאף - שַׁאיֵף, בִּ(י)שׁוּף", he:"ראה"},
-  {l:2, ar:"סְמֵע - סַאמֵע, בִּ(י)סְמַע", he:"שמע"},
-  {l:2, ar:"פִכְּרַה", he:"רעיון"},
-  {l:2, ar:"קַהְוֵה", he:"קפה"},
-  {l:2, ar:"שַׁאי", he:"תה"},
-  {l:2, ar:"אִשִׁי", he:"דבר, משהו"},
-  {l:2, ar:"סֻכַּר", he:"סוכר"},
-  {l:2, ar:"חַלִיבּ", he:"חלב"},
-  {l:2, ar:"חֻ'בְּז", he:"לחם"},
-  {l:2, ar:"אַבּ - אַבוּי", he:"אבא שלי"},
-  {l:2, ar:"אַכְּל", he:"אוכל"},
-  {l:2, ar:"אַח' - אִחְ'וֵה", he:"אח"},
-  {l:2, ar:"אֻחְ'ת - חַ'וַאת", he:"אחות"},
-  {l:2, ar:"אֻמּ", he:"אמא"},
-  {l:2, ar:"מַדְרַסֵה", he:"בית ספר"},
-  {l:2, ar:"אִבְּן", he:"בן"},
-  {l:2, ar:"חַ'אל", he:"דוד (אח של האם)"},
-  {l:2, ar:"עַמּ", he:"דוד (אח של האב)"},
-  {l:2, ar:"חְסַאבּ", he:"חשבון"},
-  {l:2, ar:"כַּלְבּ", he:"כלב"},
-  {l:2, ar:"סַנְדְוִישֵׁת פַלַאפֵל", he:"סנדוויץ' פלאפל"},
-  {l:2, ar:"מַטְעַם - מַטַאעֵם", he:"מסעדה"},
-  {l:2, ar:"סַלַטַה", he:"סלט"},
-  {l:2, ar:"צוֹת", he:"קול"},
-  {l:2, ar:"עֵילֵה", he:"משפחה"},
-  {l:2, ar:"מַכְּתַבּ - מַכַּאתֵבּ", he:"משרד"},
-  {l:2, ar:"שֻׁעְ'ל", he:"עבודה"},
-  {l:2, ar:"רַאי", he:"דעה"},
-  {l:2, ar:"סִינַמַא", he:"קולנוע"},
-  {l:2, ar:"אַהֵל", he:"הורים"},
-  {l:2, ar:"סַנְדְוִישֵׁה", he:"סנדוויץ'"},
-  {l:2, ar:"אִבְּן חַ'אל", he:"בן דוד (מצד האם)"},
-  {l:2, ar:"אִבְּן עַמּ", he:"בן דוד (מצד האב)"},
-  {l:2, ar:"תַעְבַּאן", he:"חולה, עייף"},
-  {l:2, ar:"ג'וֹעַאן - ג'וֹעַאנִין", he:"רעב"},
-  {l:2, ar:"תַאנִי", he:"אחר, שני"},
-  {l:2, ar:"זַאכִּי", he:"טעים"},
-  {l:2, ar:"הַלַּא", he:"עכשיו"},
-
-  // ---- שיעור 3 ----
-  {l:3, ar:"חַכִּי פַאצִ'י", he:"שטויות, דברי סרק"},
-  {l:3, ar:"יַא סַלַאם!", he:"איזה יופי! מגניב!"},
-  {l:3, ar:"שׁוּ בִּ(י)חְכּוּ?", he:"איך אומרים...?"},
-  {l:3, ar:"כִּיף מֻמְכֵּן אַקוּל?", he:"איך אומרים...? (איך אפשר לומר)"},
-  {l:3, ar:"כִּיף בִּ(י)חְכּוּ?", he:"איך אומרים...?"},
-  {l:3, ar:"וַלַא וַאחַד", he:"אף אחד"},
-  {l:3, ar:"תְשַׁרַּפְנַא", he:"נעים להכיר"},
-  {l:3, ar:"אַ(ל)שַּרַף אִלִי", he:"הכבוד הוא שלי (תשובה לתשרפנא)"},
-  {l:3, ar:"קַדֵּישׁ עֻמְרַכּ?", he:"בן כמה אתה?"},
-  {l:3, ar:"כֻּל אִלְאַחְתִרַאם", he:"כל הכבוד"},
-  {l:3, ar:"מַעְנַאהַא", he:"משמעותו, זה אומר"},
-  {l:3, ar:"מַרְחַבְּתֵין", he:"שלום גם לך (תשובה למרחבא)"},
-  {l:3, ar:"מַרְחַבַּא", he:"שלום, ברוכים הבאים"},
-  {l:3, ar:"תִסְלַם", he:"תהיה בריא, תודה"},
-  {l:3, ar:"עַ־(א)לְעֵין וּ(אל)רַ'אס", he:"בשמחה רבה"},
-  {l:3, ar:"עַלַא עֵינִי וּרַאסִי", he:"בשמחה רבה"},
-  {l:3, ar:"עַלַא עֵינִי", he:"בשמחה רבה"},
-  {l:3, ar:"עַלַא רַאסִי", he:"בשמחה רבה"},
-  {l:3, ar:"כַּאסַת מַי", he:"כוס מים"},
-  {l:3, ar:"שׁוּ הַ(אל)שׁוֹבּ?", he:"איזה חום"},
-  {l:3, ar:"שׁוּ יַעְנִי?", he:"מה זאת אומרת?"},
-  {l:3, ar:"וַלַא", he:"שום־, אף־"},
-  {l:3, ar:"אַו", he:"או"},
-  {l:3, ar:"אַכַּם?", he:"כמה?"},
-  {l:3, ar:"קַדֵּישׁ?", he:"כמה?"},
-  {l:3, ar:"תְעַלַּם - בִּ(י)תְעַלַּם", he:"למד"},
-  {l:3, ar:"אִשְׁתַעַּל - בִּ(י)שְׁתַעֵּל", he:"עבד"},
-  {l:3, ar:"חַכַּא - בִּ(י)חְכִּי", he:"דיבר, סיפר, אמר"},
-  {l:3, ar:"וַאחַד", he:"אחד"},
-  {l:3, ar:"תְנֵין", he:"שתיים"},
-  {l:3, ar:"תַלַאתֵה", he:"שלוש"},
-  {l:3, ar:"אַרְבַּעַה", he:"ארבעה"},
-  {l:3, ar:"חַ'מְסֵה", he:"חמש"},
-  {l:3, ar:"סִתֵּה", he:"שש"},
-  {l:3, ar:"סַבְּעַה", he:"שבע"},
-  {l:3, ar:"תַמַנְיֵה", he:"שמונה"},
-  {l:3, ar:"תִסְעַה", he:"תשע"},
-  {l:3, ar:"עַשַׁרַה", he:"עשר"},
-  {l:3, ar:"וַחַדֵה", he:"אחת"},
-  {l:3, ar:"עִשְׁרִין", he:"עשרים"},
-  {l:3, ar:"תַלַתִין", he:"שלושים"},
-  {l:3, ar:"אַרְבַּעִין", he:"ארבעים"},
-  {l:3, ar:"חַ'מְסִין", he:"חמישים"},
-  {l:3, ar:"סִתִּין", he:"שישים"},
-  {l:3, ar:"סַבְּעִין", he:"שבעים"},
-  {l:3, ar:"תַמַנִין", he:"שמונים"},
-  {l:3, ar:"תִסְעִין", he:"תשעים"},
-  {l:3, ar:"מִיֵּה", he:"מאה"},
-  {l:3, ar:"מוּסִיקַא", he:"מוזיקה"},
-  {l:3, ar:"מַקְלוּבֵּה", he:"מקלובה"},
-  {l:3, ar:"עִבְּרַאנִי", he:"עברית"},
-  {l:3, ar:"חַכִּי", he:"דיבור"},
-  {l:3, ar:"ג'אמְעַה", he:"אוניברסיטה"},
-  {l:3, ar:"עֻמְר", he:"חיים, גיל"},
-  {l:3, ar:"בַּנְטַלוֹן", he:"מכנסיים"},
-  {l:3, ar:"תַארִיח'", he:"תאריך"},
-  {l:3, ar:"מְדִיר", he:"מנהל"},
-  {l:3, ar:"מֻפְתַאח", he:"מפתח"},
-  {l:3, ar:"קַלַם", he:"עט"},
-  {l:3, ar:"שַׁארֵע - שַׁוַארֵע", he:"רחוב"},
-  {l:3, ar:"אֻסְבּוּע", he:"שבוע"},
-  {l:3, ar:"חַקּ", he:"מחיר"},
-  {l:3, ar:"סַאעַה", he:"שעה, שעון"},
-  {l:3, ar:"אִקְתִצַאד", he:"כלכלה"},
-  {l:3, ar:"צַףּ", he:"כיתה, שורה"},
-  {l:3, ar:"בַּצַל", he:"בצל"},
-  {l:3, ar:"שַׁאבּ - שַׁבַּאבּ", he:"בחור, נער"},
-  {l:3, ar:"מְעַלֵּם", he:"מורה"},
-  {l:3, ar:"עַרַבִּי", he:"ערבית"},
-  {l:3, ar:"אִנְגְלִיזִי", he:"אנגלית"},
-  {l:3, ar:"הִנְדִי", he:"הינדי"},
-  {l:3, ar:"צִינִי", he:"סינית"},
-  {l:3, ar:"מַי / מַיֵּה", he:"מים"},
-  {l:3, ar:"אַמֵירְכַּא", he:"אמריקה"},
-  {l:3, ar:"רַאס", he:"ראש"},
-  {l:3, ar:"שׁוַי", he:"קצת"},
-  {l:3, ar:"וַלַא אִשִׁי", he:"שום דבר, לא כלום"},
-  {l:3, ar:"בִּ(י)גַנֵּן", he:"משגע, מגניב"},
-  {l:3, ar:"מַשְׁע'וּל", he:"עסוק"},
-  {l:3, ar:"מִתְאַכֵּד", he:"בטוח"},
-
-  // ---- שיעור 4 ----
-  {l:4, ar:"דַמּוֹ חַ'פִיף", he:"אדם נחמד"},
-  {l:4, ar:"שׁוּ בִּיצִיר?", he:"מה קורה?"},
-  {l:4, ar:"כִּיף בִּיקוּלוּ?", he:"איך אומרים...?"},
-  {l:4, ar:"בִּיצִיר", he:"יש מצב"},
-  {l:4, ar:"מַא בִּיצִיר", he:"לא יקרה"},
-  {l:4, ar:"בַּעְד", he:"אחרי"},
-  {l:4, ar:"קַבְּל", he:"לפני"},
-  {l:4, ar:"לַ", he:"ל־"},
-  {l:4, ar:"אַנּוֹ", he:"ש־"},
-  {l:4, ar:"לַמּא", he:"כאשר, כש־"},
-  {l:4, ar:"אִזַא", he:"אם"},
-  {l:4, ar:"אֵימְתַא?", he:"מתי?"},
-  {l:4, ar:"פַאק - יְפִיק", he:"התעורר"},
-  {l:4, ar:"בַּאע - יְבִּיע", he:"מכר"},
-  {l:4, ar:"ג'אבּ - יְגִ'יבּ", he:"הביא"},
-  {l:4, ar:"צַאר - יְצִיר", he:"נהיה"},
-  {l:4, ar:"זַאר - יְזוּר", he:"ביקר"},
-  {l:4, ar:"פַאת - יְפוּת", he:"נכנס"},
-  {l:4, ar:"קַאל - יְקוּל", he:"אמר"},
-  {l:4, ar:"קַאם - יְקוּם", he:"קם"},
-  {l:4, ar:"נַאס", he:"אנשים"},
-  {l:4, ar:"צֻבְּח", he:"בוקר"},
-  {l:4, ar:"דֻכַּאן", he:"חנות"},
-  {l:4, ar:"לֵילֵה", he:"לילה"},
-  {l:4, ar:"מַחְ'בַּז", he:"מאפייה"},
-  {l:4, ar:"הַדְיֵּה - הַדַאיַא", he:"מתנה"},
-  {l:4, ar:"אלְחַ'לִיל", he:"חברון"},
-  {l:4, ar:"מַטְבַּח'", he:"מטבח"},
-  {l:4, ar:"בַּאבּ", he:"דלת"},
-  {l:4, ar:"מִתְאַחֵּר", he:"מאוחר"},
-  {l:4, ar:"מֻהֵם", he:"חשוב"},
-  {l:4, ar:"חַ'פִיף", he:"קל"},
-  {l:4, ar:"מַגְ'נוּן - מַגַ'אנִין", he:"משוגע"},
-  {l:4, ar:"דַאיְמַן", he:"תמיד"},
-  {l:4, ar:"בֻּכְּרַא", he:"מחר"},
-  {l:4, ar:"עַאדַתַן", he:"בדרך כלל"},
-
-  // ---- שיעור 5 ----
-  {l:5, ar:"צַחּ", he:"נכון"},
-  {l:5, ar:"מַא אַחְלַאה!", he:"איזה יופי!"},
-  {l:5, ar:"אִ(ל)דֻּנְיַא שוֹבּ", he:"חם היום"},
-  {l:5, ar:"מִנְשַׁאן", he:"כדי, בשביל"},
-  {l:5, ar:"זַיּ", he:"כמו"},
-  {l:5, ar:"עַן", he:"אודות"},
-  {l:5, ar:"לַאזֵם", he:"צריך"},
-  {l:5, ar:"מֻמְכֵּן", he:"אפשר"},
-  {l:5, ar:"לְעֵבּ - יִלְעַבּ", he:"שיחק"},
-  {l:5, ar:"פַתַח - יִפְתַח", he:"פתח"},
-  {l:5, ar:"רְגֵ'ע - יִרְגַ'ע", he:"חזר"},
-  {l:5, ar:"שְׁרֵבּ - יִשְׁרַבּ", he:"שתה"},
-  {l:5, ar:"קַרַא - יִקְרַא", he:"קרא"},
-  {l:5, ar:"דַפַע - יִדְפַע", he:"שילם / דחף"},
-  {l:5, ar:"טְלֵע - יִטְלַע", he:"יצא / עלה"},
-  {l:5, ar:"סַאַל - יִסְאַל", he:"שאל"},
-  {l:5, ar:"קְדֵר - יִקְדַר", he:"יכול / יכל"},
-  {l:5, ar:"אִלַּא", he:"פחות"},
-  {l:5, ar:"רֻבְּע", he:"רבע"},
-  {l:5, ar:"תֻלְת", he:"שליש"},
-  {l:5, ar:"נֻץּ", he:"חצי"},
-  {l:5, ar:"שַׁרְק אלְקֻדְס", he:"מזרח ירושלים"},
-  {l:5, ar:"שֻׁבַּאכּ - שַׁבַּאבִּיכּ", he:"חלון"},
-  {l:5, ar:"עְ'דַא", he:"ארוחת צהריים"},
-  {l:5, ar:"אלְבַּלַדֵה (א)לְקַדִימֵה", he:"העיר העתיקה"},
-  {l:5, ar:"אַחְ'בַּאר", he:"חדשות"},
-  {l:5, ar:"יוֹם אִ(ל)סַּבְּת", he:"יום שבת"},
-  {l:5, ar:"בַּחַר", he:"ים"},
-  {l:5, ar:"מַצַארִי", he:"כסף"},
-  {l:5, ar:"רַאדְיוֹ", he:"רדיו"},
-  {l:5, ar:"חַפְלֵה", he:"מסיבה"},
-  {l:5, ar:"לֻעְבֵּה", he:"משחק"},
-  {l:5, ar:"צֻ'הֹר", he:"צהריים"},
-  {l:5, ar:"בַּעְד אִ(ל)צֻּ'הֹר", he:"אחר הצהריים"},
-  {l:5, ar:"סַנֵה - סְנִין", he:"שנה"},
-  {l:5, ar:"אֻסְתַאז", he:"מורה"},
-  {l:5, ar:"מַשְׁרוּבּ - מַשְׁרוּבַּאת", he:"משקה"},
-  {l:5, ar:"עֻ'רְפֵה - עֻ'רַף", he:"חדר"},
-  {l:5, ar:"יוֹם אלְאַחַד", he:"יום ראשון"},
-  {l:5, ar:"יוֹם אִ(ל)תְּנֵין", he:"יום שני"},
-  {l:5, ar:"יוֹם אִ(ל)תַּלַאתַה", he:"יום שלישי"},
-  {l:5, ar:"יוֹם אלְאַרְבַּעַה", he:"יום רביעי"},
-  {l:5, ar:"יוֹם אלְחַ'מִיס", he:"יום חמישי"},
-  {l:5, ar:"יוֹם אלְגֻ'מְעַה", he:"יום שישי"},
-  {l:5, ar:"פוּתְבּוֹל", he:"כדורגל"},
-  {l:5, ar:"בִּ(א)לְמַרּה", he:"בכלל, בכלל לא"},
-  {l:5, ar:"מַבְּסוּט", he:"נהנה, מרוצה"},
-  {l:5, ar:"פַאתֵח - מַפְתוּח", he:"פתוח"},
-  {l:5, ar:"טַוִיל", he:"ארוך"},
-  {l:5, ar:"מְסַכַּר", he:"סגור"},
-  {l:5, ar:"קַצִיר", he:"קצר"},
-  {l:5, ar:"בַּארֵד", he:"קר"},
-  {l:5, ar:"שַׁאטֵר", he:"חכם"},
-  {l:5, ar:"בַּעְדֵין", he:"אחר כך"},
-
-  // ---- שיעור 6 ----
-  {l:6, ar:"בַּ(א)חִבַּכּ", he:"אני אוהב/ת אותך"},
-  {l:6, ar:"הַאדַא הֻוֵּ", he:"זהו זה, זה הכל"},
-  {l:6, ar:"אַללַּה יְטַוֵּל עֻמְרְהַא", he:"שאלוהים יאריך את חייה"},
-  {l:6, ar:"אַתְעְבַּכּ", he:"אפשר לבקש ממך? (להטריח אותך)"},
-  {l:6, ar:"לַחַאלוֹ", he:"לבדו"},
-  {l:6, ar:"טַבְעַן", he:"כמובן"},
-  {l:6, ar:"מִתְאַסֵּף", he:"מצטער"},
-  {l:6, ar:"שׁוּ בַּדּנַא נְעְמַל?", he:"מה לעשות?!"},
-  {l:6, ar:"מֻמְכֵּן תַעְמַל לִי מַעְרוּף?", he:"אתה יכול לעשות לי טובה?"},
-  {l:6, ar:"אַכְּתַר", he:"יותר מ־, הכי"},
-  {l:6, ar:"גַ'אי עַ־בַּאלִי", he:"בא לי"},
-  {l:6, ar:"אַחְסַן", he:"יותר טוב, הכי טוב"},
-  {l:6, ar:"טַבּ", he:"טוב"},
-  {l:6, ar:"טוּל אלְיוֹם", he:"כל היום"},
-  {l:6, ar:"לַחַד", he:"עד"},
-  {l:6, ar:"חַבּ", he:"אהב"},
-  {l:6, ar:"דַחַ'ל - יָדְחֻ'ל", he:"נכנס"},
-  {l:6, ar:"טַבַּח' - יֻטְבֻּח'", he:"בישל"},
-  {l:6, ar:"טַלַבּ - יֻטְלֻבּ", he:"ביקש"},
-  {l:6, ar:"כַּתַבּ - יֻכְּתֻבּ", he:"כתב"},
-  {l:6, ar:"קַעַד - יֻקְעֻד", he:"ישב"},
-  {l:6, ar:"עַמַל - יֻעְמֻל", he:"עשה"},
-  {l:6, ar:"אַחְדַעַשׁ", he:"אחד עשרה"},
-  {l:6, ar:"טְנַעַשׁ", he:"שתים עשרה"},
-  {l:6, ar:"תַלַטַּעַשׁ", he:"שלוש עשרה"},
-  {l:6, ar:"אַרְבַּעְטַעַשׁ", he:"ארבע עשרה"},
-  {l:6, ar:"חַ'מַסְטַעַשׁ", he:"חמש עשרה"},
-  {l:6, ar:"סִתַּעַשׁ", he:"שש עשרה"},
-  {l:6, ar:"סַבְּעַטַעַשׁ", he:"שבע עשרה"},
-  {l:6, ar:"תַמַנְטַעַשׁ", he:"שמונה עשרה"},
-  {l:6, ar:"תִסַעְטַעַשׁ", he:"תשע עשרה"},
-  {l:6, ar:"קַאנוּן", he:"משפטים, חוק"},
-  {l:6, ar:"שֻׁעְ'ל אִיד", he:"עבודת יד"},
-  {l:6, ar:"אִיד", he:"יד"},
-  {l:6, ar:"גַ'וַאבּ - אַגְ'וִבֵּה", he:"תשובה"},
-  {l:6, ar:"כֻּמְבְּיוּתַר", he:"מחשב"},
-  {l:6, ar:"סִיד", he:"אדון, סבא"},
-  {l:6, ar:"זַלַמֵה", he:"איש"},
-  {l:6, ar:"מֻסְתַשְׁפַא", he:"בית חולים"},
-  {l:6, ar:"זוֹג'", he:"בעל"},
-  {l:6, ar:"סִתּ", he:"גברת, סבתא"},
-  {l:6, ar:"צֵיף", he:"קיץ"},
-  {l:6, ar:"שְׁמַאל", he:"צפון"},
-  {l:6, ar:"לוֹח", he:"לוח"},
-  {l:6, ar:"גֻ'מְלֵה - גֻ'מַל", he:"משפט"},
-  {l:6, ar:"כַּאסֵה", he:"כוס"},
-  {l:6, ar:"עִיד", he:"חג"},
-  {l:6, ar:"טַבְּחַ'ה", he:"תבשיל"},
-  {l:6, ar:"סַהְל", he:"קל"},
-  {l:6, ar:"חַ'רַאפִי", he:"אגדי"},
-  {l:6, ar:"מַרּאת", he:"לפעמים"},
-  {l:6, ar:"בַּרּא", he:"בחוץ"},
-  {l:6, ar:"גֻ'וּא", he:"בפנים"},
-
-  // ---- שיעור 7 ----
-  {l:7, ar:"שׁוּפוּנִי", he:'"תראו אותי" (שחצנות)'},
-  {l:7, ar:"אַגַ'אכּ", he:"קיבלת, הולך"},
-  {l:7, ar:"וּחְיַאת רַבִּּי", he:"בחיי"},
-  {l:7, ar:"עַן גַ'דּ", he:"ברצינות"},
-  {l:7, ar:"כֻּלּוֹ תַמַאם?", he:"הכל בסדר?"},
-  {l:7, ar:"אַאסֵף", he:"מצטער"},
-  {l:7, ar:"בַּסִיטַה", he:"שטויות, בקטנה"},
-  {l:7, ar:"חַבִּיבִּי", he:"אהובי"},
-  {l:7, ar:"חַאצֵּר", he:"אני מוכן, אין בעיה"},
-  {l:7, ar:"וַלַא בַּטִּיח'", he:"ולא כלום, ולא שום דבר"},
-  {l:7, ar:"נֻץּ אִל...", he:"מרכז ה..."},
-  {l:7, ar:"אִלִי", he:"אשר"},
-  {l:7, ar:"אַנוּ?", he:"איזה? (זכר)"},
-  {l:7, ar:"אַנִי?", he:"איזה? (נקבה)"},
-  {l:7, ar:"אַיּ?", he:"איזה?"},
-  {l:7, ar:"מְשִׁי - יְמְשִׁי", he:"הלך"},
-  {l:7, ar:"כַּאן - יְכוּן", he:"היה"},
-  {l:7, ar:"אַוַאעִי (אל)שֻׁעְ'ל", he:"בגדי עבודה"},
-  {l:7, ar:"אַוַאעִי אלְעִיד", he:"בגדי חג"},
-  {l:7, ar:"אַוַאעִי", he:"בגדים"},
-  {l:7, ar:"קַנִּינֵה", he:"בקבוק"},
-  {l:7, ar:"קַמִיץ - קֻמְצַאן", he:"חולצה"},
-  {l:7, ar:"בְּלוּזֵה - בַּלַאיֵז", he:"חולצה"},
-  {l:7, ar:"מַחַלּ", he:"חנות"},
-  {l:7, ar:"אַפְרִיקְיַא", he:"אפריקה"},
-  {l:7, ar:"טַאקְיֵּה", he:"כובע, כיפה"},
-  {l:7, ar:"בַּלַד", he:"כפר, עיר, יישוב"},
-  {l:7, ar:"סוּק", he:"שוק"},
-  {l:7, ar:"דַכְּתוֹר", he:"רופא"},
-  {l:7, ar:"תַלֵפוֹן", he:"טלפון"},
-  {l:7, ar:"חַ'זַאנֵה", he:"ארון"},
-  {l:7, ar:"טַרִיק", he:"דרך"},
-  {l:7, ar:"חַיַאה", he:"חיים"},
-  {l:7, ar:"קַלְבּ", he:"לב"},
-  {l:7, ar:"בַּסִיט", he:"פשוט"},
-  {l:7, ar:"עַטְשַׁאן", he:"צמא"},
-  {l:7, ar:"מַוְג'וּד", he:"נמצא"},
-  {l:7, ar:"מַרִיץ'", he:"חולה"},
-  {l:7, ar:"מַלַאן", he:"מלא"},
-  {l:7, ar:"נַצִיחַה", he:"עצה"},
-  {l:7, ar:"חְ'תְיַאר", he:"זקן"},
-
-  // ---- שיעור 8 ----
-  {l:8, ar:"אַנַא אַסְעַד", he:"נעים מאד (תשובה ל'פרצה סעידה')"},
-  {l:8, ar:"עַפְוַן", he:"בבקשה (תשובה ל'שֻׁכְּרַן')"},
-  {l:8, ar:"אַהְלֵין", he:"אהלן, שלום"},
-  {l:8, ar:"בִּ(אל)נַּגַ'אח", he:"בהצלחה"},
-  {l:8, ar:"אַהְלַן", he:"שלום"},
-  {l:8, ar:"מַסַא (א)לְחֵּיר", he:"ערב טוב"},
-  {l:8, ar:"מַסַא (אל)נּוּר", he:"ערב טוב (תשובה)"},
-  {l:8, ar:"הַלַא", he:"שלום"},
-  {l:8, ar:"שׁוּ (א)לְוַצְ'ע?", he:"מה המצב?"},
-  {l:8, ar:"הַאד", he:"זה"},
-  {l:8, ar:"עַשַׁאן", he:"כי / כדי ש..."},
-  {l:8, ar:"וֵינְתַא?", he:"מתי?"},
-  {l:8, ar:"אַחַ'ד - חֹ'ד, חֹ'דִי, חֹ'דוּ", he:"לקח"},
-  {l:8, ar:"מַסַא", he:"ערב"},
-  {l:8, ar:"דַקִיקַה - דַקַאיֵק", he:"דקה"},
-];
+let WORDS = [];
 
 /* ===== STATE ===== */
 const state = {
@@ -553,13 +128,12 @@ const state = {
   pool: [],
   current: null,
   answered: false,
-  correct: 0,
-  streak: 0,
+  stats: null,
 };
 
 /* ===== HELPERS ===== */
 const $ = s => document.querySelector(s);
-const allLessons = [...new Set(WORDS.map(w=>w.l))].sort((a,b)=>a-b);
+let allLessons = [];
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 
@@ -656,12 +230,14 @@ function answer(btn,val){
     else b.classList.add("dim");
   });
   const ok = val===correctVal;
-  if(ok){ state.correct++; state.streak++; }
-  else { state.streak=0;
+  const st=state.stats;
+  st.totalAnswered++;
+  if(ok){ st.totalCorrect++; st.curStreak++; if(st.curStreak>st.bestStreak) st.bestStreak=st.curStreak; }
+  else { st.curStreak=0;
     $("#reveal").innerHTML = `התשובה הנכונה: <b>${correctVal}</b>`;
   }
-  $("#sCorrect").textContent=state.correct;
-  $("#sStreak").textContent=state.streak;
+  saveStats(); renderStats();
+  if(ok && (st.curStreak===10 || st.curStreak===50)) showMilestone(st.curStreak);
   $("#next").hidden=false;
 }
 
@@ -680,12 +256,69 @@ function loadPrefs(){
   }catch(e){ return false; }
 }
 
+/* ===== STATS (persistent: total correct, best streak, success %) ===== */
+const STATS_KEY="arabicTrainerStats";
+function loadStats(){
+  try{ const s=JSON.parse(localStorage.getItem(STATS_KEY)||"null");
+    if(s&&typeof s==="object") return {totalCorrect:s.totalCorrect||0, totalAnswered:s.totalAnswered||0, bestStreak:s.bestStreak||0, curStreak:s.curStreak||0};
+  }catch(e){}
+  return {totalCorrect:0, totalAnswered:0, bestStreak:0, curStreak:0};
+}
+function saveStats(){ try{ localStorage.setItem(STATS_KEY, JSON.stringify(state.stats)); }catch(e){} }
+function renderStats(){
+  const s=state.stats; if(!s) return;
+  $("#sStreak").textContent=s.curStreak;
+  $("#sBest").textContent=s.bestStreak;
+  $("#sCorrect").textContent=s.totalCorrect;
+  $("#sPct").textContent=s.totalAnswered ? Math.round(s.totalCorrect/s.totalAnswered*100)+"%" : "—";
+}
+function showMilestone(n){
+  if(n===50) showBanner("מַשַאללַּה!", "וואו, איזה יופי · 50 ברצף");
+  else showBanner("כֻּל אִלְאַחְתִרַאם", "כל הכבוד · 10 ברצף");
+}
+function showBanner(ar, he){
+  const el=$("#banner");
+  el.innerHTML='<div class="banner-ar">🎉 '+ar+'</div><div class="banner-he">'+he+'</div>';
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t=setTimeout(function(){ el.classList.remove("show"); }, 3200);
+}
+
+/* ===== LOAD WORDS (shared file on GitHub) ===== */
+const WORDS_URL = 'https://raw.githubusercontent.com/amirmiller/arabic-trainer/main/words.json';
+async function loadWords(){
+  try{
+    const res = await fetch(WORDS_URL + '?ts=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) throw new Error('http '+res.status);
+    const data = await res.json();
+    if(!Array.isArray(data) || !data.length) throw new Error('empty');
+    localStorage.setItem('wordsCache', JSON.stringify(data));
+    return data;
+  }catch(e){
+    const cached = localStorage.getItem('wordsCache');
+    if(cached) return JSON.parse(cached);
+    throw e;
+  }
+}
+
 /* ===== INIT ===== */
-buildLessonChips();
-if(!loadPrefs()) state.lessons=new Set([allLessons[0]]);
-syncLessonChips();
-document.querySelector('[data-dir="'+state.dir+'"]').classList.add("on");
-rebuild();
+(async () => {
+  const game = $("#game");
+  state.stats=loadStats(); renderStats();
+  game.innerHTML = '<div class="card"><div class="empty">\u05d8\u05d5\u05e2\u05df \u05de\u05d9\u05dc\u05d9\u05dd\u2026</div></div>';
+  try{
+    WORDS = await loadWords();
+  }catch(e){
+    game.innerHTML = '<div class="card"><div class="empty">\u05dc\u05d0 \u05d4\u05e6\u05dc\u05d7\u05ea\u05d9 \u05dc\u05d8\u05e2\u05d5\u05df \u05d0\u05ea \u05e8\u05e9\u05d9\u05de\u05ea \u05d4\u05de\u05d9\u05dc\u05d9\u05dd.<br>\u05d1\u05d3\u05d5\u05e7 \u05d7\u05d9\u05d1\u05d5\u05e8 \u05dc\u05d0\u05d9\u05e0\u05d8\u05e8\u05e0\u05d8 \u05d5\u05e0\u05e1\u05d4 \u05e9\u05d5\u05d1.</div></div>';
+    return;
+  }
+  allLessons = [...new Set(WORDS.map(w=>w.l))].sort((a,b)=>a-b);
+  buildLessonChips();
+  if(!loadPrefs()) state.lessons = new Set([allLessons[0]]);
+  syncLessonChips();
+  document.querySelector('[data-dir="'+state.dir+'"]').classList.add("on");
+  rebuild();
+})();
 </script>
 </body>
 </html>
